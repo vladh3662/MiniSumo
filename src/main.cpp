@@ -46,11 +46,16 @@ void setup() {
 
 void loop() {
   Forward(255);
-  if(analogRead(RightLine)<100 || analogRead(LeftLine)<100){
+  if(analogRead(RightLine)<100){
     Backward(150);
     delay(350);
     Left(150);
     delay(500);
   }
+  if(analogRead(LeftLine)<100){
+    Backward(150);
+    delay(350);
+    Right(150);
+    delay(500);
+  }
 }
-
