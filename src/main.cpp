@@ -124,7 +124,7 @@ void setup()
 }
 
 void offensive(){
-  if (digitalRead(start) == HIGH)
+  while(digitalRead(start) == HIGH)
   {
     ringLim();
     enemyPos();
@@ -133,10 +133,7 @@ void offensive(){
     else
       attack();
   }
-  else
-  {
     stop();
-  }
 }
 
 void loop()
