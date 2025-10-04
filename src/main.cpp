@@ -71,21 +71,21 @@ void ringLim()
 {
   if (analogRead(RightLine) < 100)
   {
-    Backward(150);
+    Backward(255);
     delay(350);
     Left(150);
     delay(500);
   }
   else if (analogRead(LeftLine) < 100)
   {
-    Backward(150);
+    Backward(255);
     delay(350);
     Right(150);
     delay(500);
   }
   else if (analogRead(LeftLine) < 100 && analogRead(RightLine) < 100)
   {
-    Backward(150);
+    Backward(255);
     delay(550);
     Left(255);
     delay(500);
