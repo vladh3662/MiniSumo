@@ -1,17 +1,22 @@
 #include <Arduino.h>
 
 #define RightLine A2
-#define LeftLine  A4
-#define start     A0
+#define LeftLine A4
 
-const int LeftPWM  = 10;
-const int LeftDir  = 12;
+#define start A0
+
+const int LeftPWM = 10;
+const int LeftDir = 12;
 const int RightPWM = 11;
 const int RightDir = 13;
 
-float pos;         // poziția adversarului
-float Kp = 50;     // câștig proporțional
+float pos;
+float Kp = 50;
 int baseSpeed = 200;
+
+const int dip1 = 5;
+const int dip2 = 6;
+const int dip3 = 7;
 
 void Forward(int speed)
 {
@@ -51,45 +56,53 @@ void stop()
   analogWrite(LeftPWM, 0);
 }
 
-// calculează poziția adversarului ca medie ponderată
-void enemyPos() {
+void enemyPos()
+{
   int s1 = digitalRead(0);
   int s2 = digitalRead(1);
   int s3 = digitalRead(2);
   int s4 = digitalRead(4);
   int s5 = digitalRead(A5);
 
-  int sumSensors = s1+s2+s3+s4+s5;
-  if (sumSensors > 0) {
-    pos = (s1*1 + s2*2 + s3*3 + s4*4 + s5*5) / (float)sumSensors;
-  } else {
-    pos = 0;  // nu se vede adversarul
+  pos = (s1 * 1 + s2 * 2 + s3 * 3 + s4 * 4 + s5 * 5) / 5.0;
+}
+
+void ringLim()
+{
+  if (analogRead(RightLine) < 100)
+  {
+    Backward(150);
+    delay(350);
+    Left(150);
+    delay(500);
+  }
+  else if (analogRead(LeftLine) < 100)
+  {
+    Backward(150);
+    delay(350);
+    Right(150);
+    delay(500);
+  }
+  else if (analogRead(LeftLine) < 100 && analogRead(RightLine) < 100)
+  {
+    Backward(150);
+    delay(550);
+    Left(255);
+    delay(500);
   }
 }
 
-// protecția ringului
-void ringLim(){
-   if (analogRead(RightLine) < 100)
-    {
-      Backward(150);
-      delay(350);
-      Left(150);
-      delay(500);
-    }
-    else if (analogRead(LeftLine) < 100)
-    {
-      Backward(150);
-      delay(350);
-      Right(150);
-      delay(500);
-    }
-    else if (analogRead(LeftLine) < 100 && analogRead(RightLine) < 100)
-    {
-      Backward(150);
-      delay(550);
-      Left(255);
-      delay(500);
-    }
+void attack()
+{
+  float error = pos - 3.0;
+  float correction = Kp * error;
+  int leftSpeed = constrain(baseSpeed - correction, 0, 255);
+  int rightSpeed = constrain(baseSpeed + correction, 0, 255);
+
+  digitalWrite(LeftDir, LOW);
+  digitalWrite(RightDir, LOW);
+  analogWrite(LeftPWM, leftSpeed);
+  analogWrite(RightPWM, rightSpeed);
 }
 
 void setup()
@@ -98,41 +111,59 @@ void setup()
   pinMode(LeftPWM, OUTPUT);
   pinMode(RightDir, OUTPUT);
   pinMode(RightPWM, OUTPUT);
-  pinMode(start, INPUT);
-
+  pinMode(A0, INPUT);
   pinMode(0, INPUT);
   pinMode(1, INPUT);
   pinMode(2, INPUT);
   pinMode(4, INPUT);
   pinMode(A5, INPUT);
+  pinMode(dip1, INPUT);
+  pinMode(dip2, INPUT);
+  pinMode(dip3, INPUT);
 }
 
-void loop()
-{
+void offensive(){
   if (digitalRead(start) == HIGH)
   {
-    ringLim();       // verificare margine
-    enemyPos();      // calculează poziția adversarului
-
-    if (pos == 0) {
-      // nu vede adversarul → căutare
-      Left(baseSpeed);
-    } else {
-      // control P: corectează viteza roților
-      float error = pos - 3.0;  // centru = 3
-      float correction = Kp * error;
-
-      int leftSpeed  = constrain(baseSpeed - correction, 0, 255);
-      int rightSpeed = constrain(baseSpeed + correction, 0, 255);
-
-      digitalWrite(LeftDir, LOW);
-      digitalWrite(RightDir, LOW);
-      analogWrite(LeftPWM, leftSpeed);
-      analogWrite(RightPWM, rightSpeed);
-    }
+    ringLim();
+    enemyPos();
+    if (pos == 0)
+      Forward(baseSpeed);
+    else
+      attack();
   }
   else
   {
     stop();
+  }
+}
+
+void deffensive(){
+  if (digitalRead(start) == HIGH)
+  {
+    ringLim();
+    enemyPos();
+    if (pos == 0){
+      Forward(baseSpeed);
+      delay(300);
+      Forward(baseSpeed);
+      delay(300);
+    }
+    else
+      attack();
+  }
+  else
+  {
+    stop();
+  }
+}
+
+void loop()
+{
+  if(digitalRead(dip1)==HIGH){
+    offensive();
+  }
+  if (digitalRead(dip2)==HIGH){
+    deffensive();
   }
 }
