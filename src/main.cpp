@@ -14,16 +14,16 @@ float pos;
 float Kp = 50;
 int baseSpeed = 200;
 
-const int dip1 = 5;
+//const int dip1 = 5;
 const int dip2 = 6;
 const int dip3 = 7;
 
-void Forward(int speed)
+void Forward(float speed)
 {
   digitalWrite(LeftDir, LOW);
   digitalWrite(RightDir, LOW);
   analogWrite(RightPWM, speed);
-  analogWrite(LeftPWM, speed);
+  analogWrite(LeftPWM, speed - (35/100.0*speed));
 }
 
 void Backward(int speed)
@@ -117,9 +117,10 @@ void setup()
   pinMode(2, INPUT);
   pinMode(4, INPUT);
   pinMode(A5, INPUT);
-  pinMode(dip1, INPUT);
+  //pinMode(dip1, INPUT);
   pinMode(dip2, INPUT);
   pinMode(dip3, INPUT);
+  Serial.begin(9600);
 }
 
 void offensive(){
@@ -138,32 +139,11 @@ void offensive(){
   }
 }
 
-void deffensive(){
-  if (digitalRead(start) == HIGH)
-  {
-    ringLim();
-    enemyPos();
-    if (pos == 0){
-      Forward(baseSpeed);
-      delay(300);
-      Forward(baseSpeed);
-      delay(300);
-    }
-    else
-      attack();
-  }
-  else
-  {
-    stop();
-  }
-}
-
 void loop()
 {
-  if(digitalRead(dip1)==HIGH){
-    offensive();
-  }
-  if (digitalRead(dip2)==HIGH){
-    deffensive();
-  }
+ while(digitalRead(dip2)==HIGH){
+   offensive();
+ }
+ Forward(255);
+ ringLim();
 }
