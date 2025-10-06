@@ -10,11 +10,17 @@ const int LeftDir = 12;
 const int RightPWM = 11;
 const int RightDir = 13;
 
+const int s1 = 0;
+const int s2 = 1;
+const int s3 = 2;
+const int s4 = 4;
+#define s5 A5
+
 float pos;
 float Kp = 50;
 int baseSpeed = 200;
 
-//const int dip1 = 5;
+// const int dip1 = 5;
 const int dip2 = 6;
 const int dip3 = 7;
 
@@ -23,7 +29,7 @@ void Forward(float speed)
   digitalWrite(LeftDir, LOW);
   digitalWrite(RightDir, LOW);
   analogWrite(RightPWM, speed);
-  analogWrite(LeftPWM, speed - (35/100.0*speed));
+  analogWrite(LeftPWM, speed - (35 / 100.0 * speed));
 }
 
 void Backward(int speed)
@@ -31,7 +37,7 @@ void Backward(int speed)
   digitalWrite(LeftDir, HIGH);
   digitalWrite(RightDir, HIGH);
   analogWrite(RightPWM, speed);
-  analogWrite(LeftPWM, speed);
+  analogWrite(LeftPWM, speed - (35 / 100.0 * speed));
 }
 
 void Left(int speed)
@@ -44,10 +50,26 @@ void Left(int speed)
 
 void Right(int speed)
 {
-  digitalWrite(LeftDir, LOW);
+  digitalWrite(LeftDir, HIGH);
   digitalWrite(RightDir, LOW);
   analogWrite(RightPWM, speed / 4);
   analogWrite(LeftPWM, speed);
+}
+
+void turnLeft(float speedDR, float speedSTG)
+{
+  digitalWrite(RightDir, LOW);
+  digitalWrite(LeftDir, HIGH);
+  analogWrite(RightPWM, speedDR);
+  analogWrite(LeftPWM, speedSTG);
+}
+
+void turnRight(float speedDR, float speedSTG)
+{
+  digitalWrite(RightDir, HIGH);
+  digitalWrite(LeftDir, LOW);
+  analogWrite(RightPWM, speedDR);
+  analogWrite(LeftPWM, speedSTG);
 }
 
 void stop()
@@ -117,30 +139,44 @@ void setup()
   pinMode(2, INPUT);
   pinMode(4, INPUT);
   pinMode(A5, INPUT);
-  //pinMode(dip1, INPUT);
+  // pinMode(dip1, INPUT);
   pinMode(dip2, INPUT);
   pinMode(dip3, INPUT);
   Serial.begin(9600);
 }
 
-void offensive(){
-  while(digitalRead(start) == HIGH)
-  {
+void offensive()
+{
+  //while (digitalRead(start) == HIGH)
+  //{
     ringLim();
     enemyPos();
     if (pos == 0)
       Forward(baseSpeed);
     else
-      attack();
-  }
-    stop();
+    {
+
+      if (digitalRead(s1) == HIGH && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == LOW)
+      {
+        while (digitalRead(s3) == LOW)
+          turnLeft(255, 255);
+      }
+      else if (digitalRead(s1) == LOW && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == HIGH)
+      
+        while (digitalRead(s3) == LOW)
+          turnRight(255, 255);
+        else 
+        attack();
+      
+    }
+   
+  //}
 }
 
 void loop()
 {
- while(digitalRead(dip2)==HIGH){
+  while(digitalRead(start)==HIGH){
    offensive();
  }
- Forward(255);
- ringLim();
+  stop();
 }
