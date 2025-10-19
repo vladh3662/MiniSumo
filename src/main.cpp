@@ -95,22 +95,22 @@ void ringLim()
   {
     Backward(255);
     delay(350);
-    Left(150);
-    delay(500);
+    turnLeft(150, 150);
+    delay(100);
   }
   else if (analogRead(LeftLine) < 100)
   {
     Backward(255);
     delay(350);
-    Right(150);
-    delay(500);
+    turnRight(150, 150);
+    delay(100);
   }
   else if (analogRead(LeftLine) < 100 && analogRead(RightLine) < 100)
   {
     Backward(255);
     delay(550);
-    Left(255);
-    delay(500);
+    turnLeft(150, 150);
+    delay(200);
   }
 }
 
@@ -147,36 +147,67 @@ void setup()
 
 void offensive()
 {
-  //while (digitalRead(start) == HIGH)
+  // while (digitalRead(start) == HIGH)
   //{
-    ringLim();
-    enemyPos();
-    if (pos == 0)
-      Forward(baseSpeed);
-    else
-    {
+  ringLim();
+  enemyPos();
+  if (pos == 0)
+    Forward(baseSpeed);
+  else
+  {
 
-      if (digitalRead(s1) == HIGH && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == LOW)
-      {
-        while (digitalRead(s3) == LOW)
-          turnLeft(255, 255);
-      }
-      else if (digitalRead(s1) == LOW && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == HIGH)
-      
-        while (digitalRead(s3) == LOW)
-          turnRight(255, 255);
-        else 
-        attack();
-      
+    if (digitalRead(s1) == HIGH && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == LOW)
+    {
+      while (digitalRead(s3) == LOW)
+        turnLeft(255, 255);
     }
-   
+    else if (digitalRead(s1) == LOW && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == HIGH)
+
+      while (digitalRead(s3) == LOW)
+        turnRight(255, 255);
+    else
+      attack();
+  }
+
   //}
+}
+
+void deffensive()
+{
+  // if (digitalRead(s1) == HIGH && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == LOW)
+  //   while (digitalRead(s3) == LOW)
+  //     turnLeft(255, 255);
+  // if (digitalRead(s1) == HIGH && digitalRead(s2) == HIGH && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == LOW)
+  //   while (digitalRead(s3) == LOW)
+  //     turnLeft(255, 255);
+  // if (digitalRead(s1) == LOW && digitalRead(s2) == HIGH && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == LOW)
+  //   while (digitalRead(s3) == LOW)
+  //     turnLeft(255, 255);
+  // if (digitalRead(s1) == LOW && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == LOW && digitalRead(s5) == HIGH)
+  //   while (digitalRead(s3) == LOW)
+  //     turnRight(255, 255);
+  // if (digitalRead(s1) == LOW && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == HIGH && digitalRead(s5) == HIGH)
+  //   while (digitalRead(s3) == LOW)
+  //     turnRight(255, 255);
+  // if (digitalRead(s1) == LOW && digitalRead(s2) == LOW && digitalRead(s3) == LOW && digitalRead(s4) == HIGH && digitalRead(s5) == LOW)
+  //   while (digitalRead(s3) == LOW)
+  //     turnRight(255, 255);
+  ringLim();
+  delay(1000);
+  attack();
+  ringLim();
+  delay(200);
+  Forward(255);
 }
 
 void loop()
 {
-  while(digitalRead(start)==HIGH){
-   offensive();
- }
+  while (digitalRead(start) == HIGH)
+  {
+    if (digitalRead(dip2) == HIGH)
+      offensive();
+    if (digitalRead(dip3)==HIGH)
+      deffensive();
+  }
   stop();
 }
